@@ -1,8 +1,8 @@
 streamlit
 pandas
-joblib
 numpy
-pandas-profiling
+scikit-learn
+xgboost
+joblib
 matplotlib
 seaborn
-streamlit-pandas-profiling
