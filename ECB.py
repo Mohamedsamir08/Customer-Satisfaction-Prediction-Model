@@ -1,50 +1,37 @@
+%%writefile ECB.py
+
 import streamlit as st
 import joblib
-import pandas as pd
+import numpy as np
 
-# Load the classification model
-model_classification = joblib.load('model_and_preprocessor.pkl')
+# Load your trained pipeline
+model = joblib.load('final_ECommerce_model.pkl')
 
+# Define the structure of your app
 def main():
+    st.title('Customer Satisfaction Prediction App')
 
-    # Header of Customer Satisfaction Prediction
-    html_temp = """
-                <div style="background-color:#F5F5F5">
-                <h1 style="color:#31333F;text-align:center;">Customer Satisfaction Prediction</h1>
-                </div>
-                """
-    st.markdown(html_temp, unsafe_allow_html=True)
-    
-    # Assign all features with desired data input method
-    price = st.number_input('Price', value=0.0)
-    estimated_vs_actual_shipping = st.number_input('Estimated vs Actual Shipping Days', value=0)
-    order_value = st.number_input('Order Value', value=0.0)
-    order_month = st.number_input('Order Month', value=1, min_value=1, max_value=12)
-    order_hour = st.number_input('Order Hour', value=0, min_value=0, max_value=23)
-    payment_sequential = st.number_input('Payment Sequential', value=1, min_value=1)
-    
-    result = ''
+    # Define inputs with appropriate ranges and default values based on your data
+    estimated_vs_actual_shipping = st.number_input('Estimated vs Actual Shipping Days', min_value=-189, max_value=146, value=11)
+    order_month = st.number_input('Order Month', min_value=1, max_value=12, value=6)
+    order_hour = st.number_input('Order Hour', min_value=0, max_value=23, value=15)
+    price = st.number_input('Price', min_value=0.85, max_value=6735.0, value=120.0)
+    payment_sequential = st.number_input('Payment Sequential', min_value=1, max_value=26, value=1)
+    order_value = st.number_input('Order Value', min_value=6.08, max_value=6929.31, value=140.0)
 
-    # Predict Customer Satisfaction
+    # Prediction button
     if st.button('Predict Satisfaction'):
-        # Define function to predict classification based on assigned features
-        def predict_satisfaction(price, estimated_vs_actual_shipping, order_value, order_month, order_hour, payment_sequential):
+        # Create an array with the input data
+        input_data = np.array([[estimated_vs_actual_shipping, order_month, order_hour, price, payment_sequential, order_value]])
 
-            prediction_classification = model_classification.predict(pd.DataFrame({'price': [price], 
-                                                                                  'estimated_vs_actual_shipping': [estimated_vs_actual_shipping], 
-                                                                                  'order_value': [order_value], 
-                                                                                  'order_month': [order_month], 
-                                                                                  'order_hour': [order_hour], 
-                                                                                  'payment_sequential': [payment_sequential]}))
-            return prediction_classification
+        # Get the prediction
+        prediction = model.predict(input_data)
 
-        result = predict_satisfaction(price, estimated_vs_actual_shipping, order_value, order_month, order_hour, payment_sequential)
-        if result == 0:
-            result = 'Not Satisfied'
-            st.success(f'The Customer is {result}')
+        # Output the prediction
+        if prediction[0] == 1:
+            st.success('The customer is likely satisfied.')
         else:
-            result = 'Satisfied'
-            st.success(f'The Customer is {result}')
+            st.error('The customer is likely not satisfied.')
 
 if __name__ == '__main__':
     main()
