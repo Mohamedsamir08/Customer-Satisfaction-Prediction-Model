@@ -1,0 +1,8 @@
+streamlit
+pandas
+joblib
+numpy
+pandas-profiling
+matplotlib
+seaborn
+streamlit-pandas-profiling
